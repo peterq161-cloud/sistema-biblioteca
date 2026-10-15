@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block contenido %}
+<h2>{{ encabezado }}</h2>
+<p><a href="{% url url_nuevo %}">+ Nuevo</a></p>
+<table>
+  <tr>
+    {% for c in columnas %}<th>{{ c }}</th>{% endfor %}
+    <th>Acciones</th>
+  </tr>
+  {% for obj, valores in filas %}
+  <tr>
+    {% for v in valores %}<td>{{ v|default_if_none:"" }}</td>{% endfor %}
+    <td>
+      <a href="{% url url_editar obj.pk %}">Editar</a> |
+      <a href="{% url url_eliminar obj.pk %}">Eliminar</a>
+    </td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="{{ columnas|length|add:1 }}">No hay registros.</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

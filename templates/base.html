@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sistema de Biblioteca</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #f4f4f4; }
+    nav { background: #2c3e50; padding: 12px; }
+    nav a, nav button { color: #fff; margin-right: 15px; text-decoration: none;
+                        background: none; border: 0; font-size: 16px; cursor: pointer; }
+    main { max-width: 900px; margin: 20px auto; background: #fff; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border-bottom: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background: #ecf0f1; }
+  </style>
+</head>
+<body>
+  {% if user.is_authenticated %}
+  <nav>
+    <a href="{% url 'inicio' %}">Inicio</a>
+    <a href="{% url 'libro_lista' %}">Libros</a>
+    <a href="{% url 'lector_lista' %}">Lectores</a>
+    <a href="{% url 'prestamo_lista' %}">Préstamos</a>
+    <form method="post" action="{% url 'logout' %}" style="display:inline">
+      {% csrf_token %}
+      <button type="submit">Salir ({{ user.username }})</button>
+    </form>
+  </nav>
+  {% endif %}
+  <main>
+    {% block contenido %}{% endblock %}
+  </main>
+</body>
+</html>
