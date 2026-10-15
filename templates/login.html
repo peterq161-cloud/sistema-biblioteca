@@ -1,9 +1,5 @@
 {% extends 'base.html' %}
-{% block contenido %}
-<h2>Iniciar sesión</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Entrar</button>
-</form>
+{% block titulo %}Acceso seguro | Sistema de Biblioteca{% endblock %}
+{% block acceso %}
+<div class="login-page"><section class="login-showcase"><a class="brand" href="#"><span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21z"/><path d="M4 5.5v15M8 7h8M8 11h8"/></svg></span><span class="brand-copy"><span class="brand-name">Sistema de Biblioteca</span><span class="brand-sub">Gestión bibliotecaria</span></span></a><div class="login-quote"><div class="eyebrow">Conocimiento. Orden. Acceso.</div><h1>Las ideas que importan merecen un lugar.</h1><p>Una experiencia de gestión diseñada para mantener cada libro, cada lector y cada préstamo bajo control.</p></div><div class="login-foot">Sistema de Biblioteca · Un espacio para descubrir y aprender.</div></section><section class="login-form-side"><div class="login-card"><div class="brand"><span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21z"/><path d="M4 5.5v15M8 7h8M8 11h8"/></svg></span><span class="brand-copy"><span class="brand-name">Sistema de Biblioteca</span><span class="brand-sub" style="color:#7e8b9a">Acceso al sistema</span></span></div><h2>Bienvenido de nuevo.</h2><p class="login-lead">Introduce tus credenciales para acceder al espacio de gestión.</p>{% if form.errors %}<div class="alert error">El usuario o la contraseña no son correctos. Comprueba tus datos e inténtalo otra vez.</div>{% endif %}<form method="post">{% csrf_token %}{% for field in form %}<p><label for="{{ field.id_for_label }}">{% if field.name == 'username' %}Nombre de usuario{% else %}Contraseña{% endif %}</label>{{ field }}{% for error in field.errors %}<span class="errorlist">{{ error }}</span>{% endfor %}</p>{% endfor %}<input type="hidden" name="next" value="{{ next }}"><button class="btn btn-primary" type="submit">Entrar al sistema <span>→</span></button></form><div class="login-security"><span>◇</span> Acceso protegido · Sesión autenticada</div></div></section></div>
 {% endblock %}

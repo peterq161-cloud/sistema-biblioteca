@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
+{% load static %}
+{% block titulo %}{{ encabezado }} | Sistema de Biblioteca
+{% endblock %}
+{% block breadcrumb %}{{ encabezado }}
+{% endblock %}
 {% block contenido %}
-<h2>{{ encabezado }}</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Guardar</button>
-  <a href="{% url url_lista %}">Cancelar</a>
-</form>
+<div class="page-heading"><div><div class="eyebrow">Gestión de datos · Formulario</div><h1 class="page-title">{{ encabezado }}</h1><p class="page-subtitle">Introduce la información con cuidado. Los campos obligatorios deben completarse antes de guardar.</p></div></div>
+<section class="panel form-panel"><div class="form-intro"><strong>Detalles del registro</strong><p>Revisa los datos antes de confirmar los cambios.</p></div><div class="panel-body"><form method="post" novalidate>{% csrf_token %}{% if form.non_field_errors %}<div class="alert error">{{ form.non_field_errors }}</div>{% endif %}<div class="form-fields">{% for field in form %}<div class="form-field"><label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span style="color:#c84747">*</span>{% endif %}</label>{% if field.name == 'libro' or field.name == 'lector' %}<div class="autocomplete-wrap" data-combobox="{{ field.name }}" data-endpoint="{% if field.name == 'libro' %}{% url 'buscar_libros' %}{% else %}{% url 'buscar_lectores' %}{% endif %}"><input class="campo" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" autocomplete="off" placeholder="{% if field.name == 'libro' %}Buscar por título, autor o ISBN...{% else %}Buscar por nombre, carnet o ID...{% endif %}"><div class="autocomplete-results" role="listbox" hidden></div>{{ field }}<span class="autocomplete-error" role="alert" hidden>{% if field.name == 'libro' %}Elige un libro de la lista{% else %}Elige un lector de la lista{% endif %}</span></div>{% else %}{{ field }}{% endif %}{% if field.help_text %}<span class="helptext">{{ field.help_text }}</span>{% endif %}{% for error in field.errors %}<span class="errorlist">{{ error }}</span>{% endfor %}</div>{% endfor %}</div><div class="form-actions"><a class="btn btn-secondary" href="{% url url_lista %}">Cancelar</a><button class="btn btn-primary" type="submit">Guardar cambios <span>→</span></button></div></form></div></section>
+<script src="{% static 'js/search-select.js' %}"></script>
 {% endblock %}

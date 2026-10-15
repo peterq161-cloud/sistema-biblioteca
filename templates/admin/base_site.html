@@ -1,0 +1,25 @@
+{% extends "admin/base.html" %}
+{% load static %}
+{% block title %}Sistema de Biblioteca · Administración{% endblock %}
+{% block branding %}
+<div id="site-name"><a href="{% url 'admin:index' %}"><span class="atlas-admin-mark">B</span><span class="admin-brand-copy"><strong>Sistema de Biblioteca</strong><small>ADMINISTRACIÓN</small></span></a></div>
+ <a class="admin-back-link" href="/">← Volver al sistema</a>
+{% endblock %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/admin-premium.css' %}">{% endblock %}
+
+{% block footer %}{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  const path=location.pathname;
+  if(!path.startsWith('/admin/') || path==='/admin/' || path==='/admin/login/')return;
+  const content=document.querySelector('#content');const title=content&&content.querySelector('h1');
+  if(!content||!title)return;
+  const link=document.createElement('a');link.className='admin-list-back';link.textContent='← Volver al listado';
+  const parts=path.split('/').filter(Boolean);
+  if(parts.length>=4){link.href='/'+parts.slice(0,3).join('/')+'/';}
+  else if(parts.length===3){link.href='/admin/';}
+  else{link.href='/admin/';}
+  title.insertAdjacentElement('beforebegin',link);
+});
+</script>
+{% endblock %}

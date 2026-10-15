@@ -1,10 +1,7 @@
 {% extends 'base.html' %}
+{% block titulo %}{{ encabezado }} | Sistema de Biblioteca{% endblock %}
+{% block breadcrumb %}Confirmar eliminación{% endblock %}
 {% block contenido %}
-<h2>{{ encabezado }}</h2>
-<form method="post">
-  {% csrf_token %}
-  <p>¿Seguro que quieres eliminar «{{ object }}»?</p>
-  <button type="submit">Sí, eliminar</button>
-  <a href="{% url url_lista %}">Cancelar</a>
-</form>
+<div class="page-heading"><div><div class="eyebrow">Zona de confirmación</div><h1 class="page-title">{{ encabezado }}</h1><p class="page-subtitle">Revisa el registro antes de confirmar esta acción.</p></div></div>
+<section class="panel delete-card"><div class="panel-body"><div class="delete-warning"><span class="delete-warning-icon">!</span><div><strong>Esta acción requiere tu confirmación.</strong><p>Estás a punto de eliminar el registro «{{ object }}». Esta operación puede afectar la información relacionada y no siempre se puede deshacer.</p></div></div><form method="post">{% csrf_token %}<div class="form-actions" style="margin-top:0;padding-top:0;border-top:0"><a class="btn btn-secondary" href="{% url url_lista %}">No, volver</a><button class="btn btn-danger" type="submit">Sí, eliminar registro</button></div></form></div></section>
 {% endblock %}

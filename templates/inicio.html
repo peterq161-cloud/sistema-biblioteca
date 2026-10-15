@@ -1,7 +1,38 @@
 {% extends 'base.html' %}
+{% block titulo %}Visión general | Sistema de Biblioteca{% endblock %}
+{% block breadcrumb %}Visión general{% endblock %}
 {% block contenido %}
-<h2>Sistema de Biblioteca</h2>
-<p>Libros registrados: <strong>{{ total_libros }}</strong></p>
-<p>Lectores registrados: <strong>{{ total_lectores }}</strong></p>
-<p>Préstamos registrados: <strong>{{ total_prestamos }}</strong></p>
+<div class="page-heading"><div><div class="eyebrow">Centro de operaciones · Biblioteca</div><h1 class="page-title">Tu biblioteca, en perspectiva.</h1><p class="page-subtitle">Una visión clara de tu colección, tu comunidad y la actividad de préstamo.</p></div>{% if es_personal %}<a class="btn btn-accent" href="{% url 'prestamo_nuevo' %}">＋ Registrar préstamo</a>{% endif %}</div>
+<section class="metric-grid" aria-label="Resumen de la biblioteca">
+<article class="metric-card"><div class="metric-top"><span class="metric-label">Títulos en catálogo</span><span class="metric-icon">▤</span></div><div class="metric-value" data-resumen="total_titulos">{{ total_titulos }}</div><div class="metric-foot">Obras registradas</div></article>
+<article class="metric-card"><div class="metric-top"><span class="metric-label">Ejemplares disponibles</span><span class="metric-icon">▣</span></div><div class="metric-value"><span data-resumen="ejemplares_disponibles">{{ ejemplares_disponibles }}</span> / <span data-resumen="ejemplares_total">{{ ejemplares_total }}</span></div><div class="metric-foot">Disponibles / Total</div></article>
+{% if es_personal %}<article class="metric-card"><div class="metric-top"><span class="metric-label">Lectores</span><span class="metric-icon blue">♙</span></div><div class="metric-value" data-resumen="total_lectores">{{ total_lectores }}</div><div class="metric-foot">Comunidad lectora</div></article>{% endif %}
+<article class="metric-card"><div class="metric-top"><span class="metric-label">Préstamos activos</span><span class="metric-icon amber">↔</span></div><div class="metric-value" data-resumen="prestamos_activos">{{ prestamos_activos }}</div><div class="metric-foot">Pendientes de devolución</div></article>
+<article class="metric-card"><div class="metric-top"><span class="metric-label">Vencidos</span><span class="metric-icon amber">!</span></div><div class="metric-value" data-resumen="prestamos_vencidos">{{ prestamos_vencidos }}</div><div class="metric-foot">Requieren atención</div></article>
+<article class="metric-card"><div class="metric-top"><span class="metric-label">Devueltos</span><span class="metric-icon">✓</span></div><div class="metric-value" data-resumen="prestamos_devueltos">{{ prestamos_devueltos }}</div><div class="metric-foot">Historial de devoluciones</div></article>
+</section>
+<div class="dashboard-grid">
+<div class="content-stack">
+<section class="panel"><div class="panel-head"><div><h2 class="panel-title">Préstamos vencidos</h2><p class="panel-description">Libros con fecha límite superada.</p></div></div><div class="panel-body" id="panel-vencidos">{% for x in vencidos %}<div class="notice" style="margin-bottom:10px"><strong>{{ x.libro.titulo }}</strong><span>{% if es_personal %}{{ x.lector.nombre_completo }} · {% endif %}{{ x.fecha_devolucion|date:'d/m/Y' }} · {{ x.dias_retraso }} días de atraso</span></div>{% empty %}<div class="notice neutral">No hay préstamos vencidos.</div>{% endfor %}</div></section>
+<section class="panel"><div class="panel-head"><div><h2 class="panel-title">Por vencer en 3 días</h2><p class="panel-description">Próximas fechas límite.</p></div></div><div class="panel-body" id="panel-por_vencer">{% for x in por_vencer %}<div class="notice neutral" style="margin-bottom:10px"><strong>{{ x.libro.titulo }}</strong><span>{{ x.fecha_devolucion|date:'d/m/Y' }}</span></div>{% empty %}<div class="notice neutral">No hay préstamos próximos a vencer.</div>{% endfor %}</div></section>
+<section class="panel"><div class="panel-head"><div><h2 class="panel-title">Últimos préstamos</h2><p class="panel-description">Actividad reciente.</p></div></div><div class="panel-body" id="panel-ultimos">{% for x in ultimos %}<div class="notice neutral" style="margin-bottom:10px"><strong>{{ x.libro.titulo }}</strong><span>{% if es_personal %}{{ x.lector.nombre_completo }} · {% endif %}{% if x.esta_vencido %}Vencido{% else %}{{ x.estado }}{% endif %}</span></div>{% empty %}<div class="notice neutral">Todavía no hay préstamos registrados.</div>{% endfor %}</div></section>
+</div>
+<div class="content-stack">
+<section class="panel"><div class="panel-head"><div><h2 class="panel-title">Estado del sistema</h2><p class="panel-description">Resumen actualizado de disponibilidad.</p></div><span class="badge">En línea</span></div><div class="panel-body"><div class="notice neutral"><strong>Préstamos vencidos: <span data-resumen="prestamos_vencidos">{{ prestamos_vencidos }}</span></strong><span>Consulta el panel de vencimientos para dar seguimiento.</span></div><div class="notice" style="margin-top:10px"><strong>Libros agotados: <span data-resumen="total_agotados">{{ total_agotados }}</span></strong><span>Ejemplares sin disponibilidad actual.</span></div></div></section>
+<section class="panel"><div class="panel-head"><div><h2 class="panel-title">Libros más prestados</h2><p class="panel-description">Popularidad histórica.</p></div></div><div class="panel-body" id="panel-populares">{% for x in populares %}<div class="notice neutral" style="margin-bottom:10px"><strong>{{ x.titulo }}</strong><span>{{ x.veces }} préstamos</span></div>{% empty %}<div class="notice neutral">Aún no hay libros prestados.</div>{% endfor %}</div></section>
+<section class="panel"><div class="panel-head"><div><h2 class="panel-title">Libros agotados</h2><p class="panel-description">Sin ejemplares disponibles.</p></div></div><div class="panel-body" id="panel-libros_agotados">{% for x in libros_agotados %}<div class="notice neutral" style="margin-bottom:10px"><strong>{{ x.titulo }}</strong><span>ISBN: {{ x.isbn }}</span></div>{% empty %}<div class="notice neutral">No hay libros agotados.</div>{% endfor %}</div></section>
+<section class="panel"><div class="panel-head"><div><h2 class="panel-title">Tu sesión</h2><p class="panel-description">Información de acceso actual.</p></div></div><div class="panel-body"><strong>{{ user.username }}</strong><div class="notice neutral" style="margin-top:10px">Sesión autenticada y activa.</div></div></section>
+</div></div>
+<script>
+(function(){
+ const url = "{% url 'resumen' %}";
+ const textos={vencidos:'No hay préstamos vencidos.',por_vencer:'No hay préstamos próximos a vencer.',ultimos:'Todavía no hay préstamos registrados.',populares:'Aún no hay libros prestados.',libros_agotados:'No hay libros agotados.'};
+ function elemento(tag,clase,contenido){const n=document.createElement(tag);if(clase)n.className=clase;n.textContent=contenido;return n;}
+ function pintar(id,items){const panel=document.getElementById('panel-'+id);if(!panel)return;panel.replaceChildren();if(!items.length){panel.append(elemento('div','notice neutral',textos[id]));return;}
+ items.forEach(x=>{const caja=elemento('div','notice neutral','');caja.style.marginBottom='10px';caja.append(elemento('strong','',x.libro||x.titulo));let detalle='';if(id==='vencidos')detalle=(x.lector?x.lector+' · ':'')+x.fecha+' · '+x.dias_retraso+' días de atraso';else if(id==='por_vencer')detalle=x.fecha;else if(id==='ultimos')detalle=(x.lector?x.lector+' · ':'')+x.estado;else if(id==='populares')detalle=x.veces+' préstamos';else detalle='ISBN: '+x.isbn;caja.append(elemento('span','',detalle));panel.append(caja);});}
+ async function actualizar(){try{const r=await fetch(url,{credentials:'same-origin',headers:{'Accept':'application/json'},cache:'no-store'});if(!r.ok)return;const datos=await r.json();document.querySelectorAll('[data-resumen]').forEach(el=>{const val=datos[el.dataset.resumen];if(val!==null&&val!==undefined)el.textContent=val;});Object.keys(textos).forEach(k=>pintar(k,datos[k]||[]));}catch(e){/* conservar el último estado mostrado */}}
+ setInterval(()=>{if(!document.hidden)actualizar()},15000);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)actualizar()});
+})();
+</script>
 {% endblock %}

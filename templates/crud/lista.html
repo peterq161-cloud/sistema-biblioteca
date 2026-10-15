@@ -1,22 +1,15 @@
 {% extends 'base.html' %}
+{% block titulo %}{{ encabezado }} | Sistema de Biblioteca{% endblock %}
+{% block breadcrumb %}{{ encabezado }}{% endblock %}
 {% block contenido %}
-<h2>{{ encabezado }}</h2>
-<p><a href="{% url url_nuevo %}">+ Nuevo</a></p>
-<table>
-  <tr>
-    {% for c in columnas %}<th>{{ c }}</th>{% endfor %}
-    <th>Acciones</th>
-  </tr>
-  {% for obj, valores in filas %}
-  <tr>
-    {% for v in valores %}<td>{{ v|default_if_none:"" }}</td>{% endfor %}
-    <td>
-      <a href="{% url url_editar obj.pk %}">Editar</a> |
-      <a href="{% url url_eliminar obj.pk %}">Eliminar</a>
-    </td>
-  </tr>
-  {% empty %}
-  <tr><td colspan="{{ columnas|length|add:1 }}">No hay registros.</td></tr>
-  {% endfor %}
-</table>
+<div class="page-heading"><div><div class="eyebrow">Gestión de datos · Sistema de Biblioteca</div><h1 class="page-title">{{ encabezado }}</h1><p class="page-subtitle">Consulta y administra la información de forma clara y organizada.</p></div>{% if puede_editar %}<a class="btn btn-primary" href="{% url url_nuevo %}"><span style="font-size:17px">＋</span> Crear registro</a>{% endif %}</div>
+<section class="panel">
+  <div class="toolbar"><form class="search-form" method="get"><label class="search-wrap"><span class="sr-only">Buscar registros</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg><input class="search-input control" type="search" name="q" value="{{ request.GET.q }}" placeholder="Buscar en {{ encabezado|lower }}…"></label>{% if url_lista == 'libro_lista' %}<select name="disp" class="control"><option value="">Todas las existencias</option><option value="si" {% if request.GET.disp == 'si' %}selected{% endif %}>Disponibles</option><option value="no" {% if request.GET.disp == 'no' %}selected{% endif %}>Agotados (0)</option></select>{% elif url_lista == 'prestamo_lista' %}<select name="estado" class="control"><option value="">Todos los estados</option><option value="activo" {% if request.GET.estado == 'activo' %}selected{% endif %}>Vigentes</option><option value="vencido" {% if request.GET.estado == 'vencido' %}selected{% endif %}>Vencidos</option><option value="devuelto" {% if request.GET.estado == 'devuelto' %}selected{% endif %}>Devueltos</option></select>{% endif %}<select name="orden" class="control"><option value="reciente" {% if orden == 'reciente' %}selected{% endif %}>Más recientes</option><option value="antiguo" {% if orden == 'antiguo' %}selected{% endif %}>Más antiguos</option><option value="az" {% if orden == 'az' %}selected{% endif %}>A-Z</option><option value="disponibilidad" {% if orden == 'disponibilidad' %}selected{% endif %}>Disponibilidad / prioridad</option></select>{% if url_lista == 'lector_lista' %}<select name="filtro" class="control"><option value="">Todos los lectores</option><option value="activos" {% if request.GET.filtro == 'activos' %}selected{% endif %}>Con préstamos activos</option><option value="vencidos" {% if request.GET.filtro == 'vencidos' %}selected{% endif %}>Con préstamos vencidos</option></select>{% endif %}<button class="btn btn-secondary control" type="submit">Buscar</button>{% if request.GET.q %}<a class="btn btn-secondary" href="{% url url_lista %}">Limpiar</a>{% endif %}</form><span style="font-size:11px;color:var(--muted)">{{ object_list|length }} en esta página</span></div>
+  {% if url_lista == 'prestamo_lista' %}<div class="toolbar" style="flex-wrap:wrap;gap:8px"><a class="btn btn-secondary" href="?estado=&q={{ request.GET.q|urlencode }}">Todos ({{ conteos.todos }})</a><a class="btn btn-secondary" href="?estado=activo&q={{ request.GET.q|urlencode }}">Activos ({{ conteos.activo }})</a><a class="btn btn-secondary" href="?estado=vencido&q={{ request.GET.q|urlencode }}">Vencidos ({{ conteos.vencido }})</a><a class="btn btn-secondary" href="?estado=devuelto&q={{ request.GET.q|urlencode }}">Devueltos ({{ conteos.devuelto }})</a></div>{% endif %}
+  <div class="table-wrap"><table><thead><tr>{% for c in columnas %}<th>{{ c }}</th>{% endfor %}<th>Acciones</th></tr></thead><tbody>
+  {% for obj, valores in filas %}<tr>{% for v in valores %}<td>{% if forloop.first %}<span class="primary-cell">{{ v|default_if_none:"—" }}</span>{% elif v == 'Disponible' or v == 'Devuelto' %}<span class="badge">{{ v }}</span>{% elif v == 'Agotado' %}<span class="badge danger">{{ v }}</span>{% elif 'Vencido' in v|stringformat:'s' %}<span class="badge danger">{{ v }}</span>{% elif v == 'Activo' %}<span class="badge warning">{{ v }}</span>{% else %}{{ v|default_if_none:"—" }}{% endif %}</td>{% endfor %}<td><div class="actions">{% if puede_editar %}<a class="action-link" href="{% url url_editar obj.pk %}">Editar</a>{% endif %}{% if url_lista == 'prestamo_lista' and puede_editar and obj.estado == 'Activo' %}<form method="post" action="{% url 'prestamo_devolver' obj.pk %}" style="display:inline">{% csrf_token %}<button class="action-link" type="submit" onclick="return confirm('¿Confirmar devolución?')">Devolver</button></form>{% endif %}{% if puede_eliminar %}<a class="action-link delete" href="{% url url_eliminar obj.pk %}">Eliminar</a>{% endif %}</div></td></tr>
+  {% empty %}<tr><td colspan="{{ columnas|length|add:1 }}"><div class="empty-state"><div class="empty-mark">⌕</div><strong>No encontramos registros</strong><p>{% if request.GET.q %}Prueba con otro término de búsqueda.{% else %}Todavía no hay registros en esta sección.{% endif %}</p>{% if puede_editar %}<a class="btn btn-primary" href="{% url url_nuevo %}">＋ Crear el primer registro</a>{% endif %}</div></td></tr>{% endfor %}
+  </tbody></table></div>
+  {% if is_paginated %}<div class="pagination"><span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span><div class="pagination-links">{% if page_obj.has_previous %}<a href="?{{ qs }}&page={{ page_obj.previous_page_number }}">← Anterior</a>{% endif %}<span class="current">{{ page_obj.number }}</span>{% if page_obj.has_next %}<a href="?{{ qs }}&page={{ page_obj.next_page_number }}">Siguiente →</a>{% endif %}</div></div>{% endif %}
+</section>
 {% endblock %}
