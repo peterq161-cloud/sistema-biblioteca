@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% block titulo %}Eliminar usuario | Sistema de Biblioteca{% endblock %}
+{% block breadcrumb %}Eliminar usuario{% endblock %}
+{% block contenido %}
+<div class="page-heading"><div><div class="eyebrow">Administración · Usuarios y roles</div><h1 class="page-title">Eliminar usuario</h1><p class="page-subtitle">Revisa la cuenta antes de confirmar esta acción.</p></div></div>
+<section class="panel delete-card"><div class="panel-body"><div class="delete-warning"><span class="delete-warning-icon">!</span><div><strong>Esta acción no se puede deshacer.</strong><p>Vas a eliminar la cuenta «{{ objeto.username }}» ({{ rol }}). El lector vinculado y sus préstamos no se borran. Si la cuenta registró préstamos, el sistema no permitirá eliminarla: desactívala en su lugar.</p></div></div><form method="post">{% csrf_token %}<div class="form-actions" style="margin-top:0;padding-top:0;border-top:0"><a class="btn btn-secondary" href="{% url 'usuarios_lista' %}">No, volver</a><button class="btn btn-danger" type="submit">Sí, eliminar usuario</button></div></form></div></section>
+{% endblock %}

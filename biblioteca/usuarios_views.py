@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group, User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, ProtectedError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.core.paginator import Paginator
 from django.views.decorators.http import require_http_methods
@@ -19,18 +19,22 @@ def solo_admin(view):
     return wrapper
 
 
+def personal():
+    """Cuentas que se gestionan aquí: Administradores y Bibliotecarios (no estudiantes)."""
+    return User.objects.filter(Q(is_superuser=True)|Q(groups__name='Bibliotecario')).distinct()
+
+
 def rol_de(user):
     return 'Administrador' if user.is_superuser else ('Bibliotecario' if user.groups.filter(name='Bibliotecario').exists() else 'Usuario')
 
 
 @solo_admin
 def lista(request):
-    usuarios=User.objects.all().prefetch_related('groups')
+    usuarios=personal().prefetch_related('groups')
     q=request.GET.get('q','').strip()[:100]; rol=request.GET.get('rol',''); estado=request.GET.get('estado','')
     if q:usuarios=usuarios.filter(Q(username__icontains=q)|Q(first_name__icontains=q)|Q(last_name__icontains=q)|Q(email__icontains=q))
     if rol=='Administrador':usuarios=usuarios.filter(is_superuser=True)
     elif rol=='Bibliotecario':usuarios=usuarios.filter(is_superuser=False,groups__name='Bibliotecario')
-    elif rol=='Usuario':usuarios=usuarios.filter(is_superuser=False).exclude(groups__name='Bibliotecario')
     if estado in ('activo','inactivo'):usuarios=usuarios.filter(is_active=(estado=='activo'))
     orden=request.GET.get('orden','reciente')
     usuarios=usuarios.order_by('date_joined' if orden=='antiguo' else 'username' if orden=='az' else '-date_joined','-pk').distinct()
@@ -46,7 +50,7 @@ def lista(request):
 @solo_admin
 @require_http_methods(['GET','POST'])
 def editar(request,pk=None):
-    usuario=get_object_or_404(User,pk=pk) if pk else None
+    usuario=get_object_or_404(personal(),pk=pk) if pk else None
     form=UsuarioForm(request.POST or None,instance=usuario)
     if request.method=='POST' and form.is_valid():
         nuevo_rol=form.cleaned_data['rol']
@@ -72,3 +76,23 @@ def editar(request,pk=None):
             messages.success(request,'Usuario guardado correctamente con el rol '+nuevo_rol+'.')
             return redirect('usuarios_lista')
     return render(request,'usuarios/form.html',{'form':form,'editando':bool(usuario),'usuario_editado':usuario})
+
+
+@solo_admin
+@require_http_methods(['GET','POST'])
+def eliminar(request,pk):
+    usuario=get_object_or_404(personal(),pk=pk)
+    if usuario.pk==request.user.pk:
+        messages.error(request,'No puedes eliminar tu propia cuenta de Administrador.')
+        return redirect('usuarios_lista')
+    if request.method=='POST':
+        nombre=usuario.get_full_name() or usuario.username
+        try:
+            with transaction.atomic():
+                usuario.delete()
+        except ProtectedError:
+            messages.error(request,'No se puede eliminar a '+nombre+' porque registró préstamos. Desactiva la cuenta en su lugar.')
+        else:
+            messages.success(request,'Usuario '+nombre+' eliminado correctamente.')
+        return redirect('usuarios_lista')
+    return render(request,'usuarios/eliminar.html',{'objeto':usuario,'rol':rol_de(usuario)})

@@ -12,6 +12,7 @@ Todo el software usado es libre: **Python, Django, PostgreSQL, Gunicorn, Nginx, 
 - **Préstamos:** registrar y devolver préstamos. Al prestar baja el stock y al devolver sube.
 - **Panel de inicio:** resumen en tiempo real (títulos, ejemplares, lectores, préstamos activos, vencidos y devueltos).
 - **Usuarios y roles:** administración de cuentas y permisos desde la propia aplicación.
+- **Cuentas de usuarios:** el Bibliotecario (y el Administrador) crea y consulta cuentas de estudiantes (rol Usuario), las busca por nombre, correo o carnet, ve cuántos préstamos activos, vencidos y devueltos tiene cada una y puede cambiarles la contraseña. No puede crear ni modificar cuentas de Bibliotecario o Administrador.
 
 ### Reglas de negocio
 
@@ -27,7 +28,7 @@ Todo el software usado es libre: **Python, Django, PostgreSQL, Gunicorn, Nginx, 
 | Rol | Permisos |
 |---|---|
 | **Administrador** | Todo: libros, lectores, préstamos, eliminar, Usuarios y roles y panel técnico `/admin/`. |
-| **Bibliotecario** | Registrar préstamos y devoluciones; crear y editar libros y lectores. No elimina ni gestiona usuarios. |
+| **Bibliotecario** | Registrar préstamos y devoluciones; crear y editar libros y lectores; crear y administrar cuentas de estudiantes (rol Usuario) en *Cuentas de usuarios*. No elimina registros ni gestiona Bibliotecarios o Administradores. |
 | **Usuario** | Consulta el catálogo y sus propios préstamos. Se vincula a un lector por el correo electrónico. |
 
 ## Tecnologías
