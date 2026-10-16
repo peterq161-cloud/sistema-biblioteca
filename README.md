@@ -14,6 +14,8 @@ Todo el software usado es libre: **Python, Django, PostgreSQL, Gunicorn, Nginx, 
 - **Usuarios y roles:** administración de cuentas y permisos desde la propia aplicación.
 - **Cuentas de usuarios:** el Bibliotecario (y el Administrador) crea y consulta cuentas de estudiantes (rol Usuario), las busca por nombre, correo o carnet, ve cuántos préstamos activos, vencidos y devueltos tiene cada una y puede cambiarles la contraseña. No puede crear ni modificar cuentas de Bibliotecario o Administrador.
 
+Para ver cómo usa cada rol los módulos, mira [MANUAL_DE_USO.md](MANUAL_DE_USO.md).
+
 ### Reglas de negocio
 
 - Máximo 3 préstamos activos por lector.
